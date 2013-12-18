@@ -52,32 +52,52 @@ NUMNODES=$[ ${#NODELIST[*]} - 1 ]
 log_entry Current number of nodes: ${NUMNODES}
 
 
-echo $(gen_ipv4_address ${NETOCTET1} ${NETOCTET2} ${GWSUBNET} ${GWNODE})
+#echo $(gen_ipv4_address ${NETOCTET1} ${NETOCTET2} ${GWSUBNET} ${GWNODE})
 
-echo gateway before $GW
-set_ipv4_gateway 3 4 5 6
-echo gatewat after $GW
-
-echo netmask before $NETMASK
-set_ipv4_netmask 1 2 3 4
-echo netmask after $NETMASK
-
-echo broadcast before $BROADCAST
-set_ipv4_broadcast 5 6 7 8
-echo broadcast after $BROADCAST
-
-echo node IP before $NODEIP
-set_ipv4_nodeip 9 10 11 12
-echo node IP  after $NODEIP
+#echo gateway before $GW
+#set_ipv4_gateway 3 4 5 6
+#echo gateway after $GW
+set_ipv4_gateway ${NETOCTET1} ${NETOCTET2} ${GWSUBNET} ${GWNODE}
 
 
-HOST="node-02"
+#echo netmask before $NETMASK
+#set_ipv4_netmask 1 2 3 4
+#echo netmask after $NETMASK
+set_ipv4_netmask 255 255 255 0
+
+
+#echo broadcast before $BROADCAST
+#set_ipv4_broadcast 5 6 7 8
+#echo broadcast after $BROADCAST
+set_ipv4_broadcast ${NETOCTET1} ${NETOCTET2} ${SUBNET} 255
+
+#echo node IP before $NODEIP
+#set_ipv4_nodeip 9 10 11 12
+#echo node IP  after $NODEIP
+set_ipv4_nodeip ${NETOCTET1} ${NETOCTET2} ${SUBNET} 61
+
+
+CURRENTHOST="node-02"
 SSH_COMMAND=""
-SSH_COMMAND="pushd /usr/local/hadoop/conf ; ls >> ~/confdirlist2.txt;"
-# ssh -t -p ${SSHPORT} hduser@192.168.3.61 -C ${SSH_COMMAND}
+#SSH_COMMAND="pushd /usr/local/hadoop/conf ; ls >> ~/confdirlist2.txt;"
 
-SSH  hduser@192.168.3.61 ${SSH_COMMAND}
+#SSH  hduser@192.168.3.61 ${SSH_COMMAND}
 
-SCP ${HOST} ${SLAVES_FILE} ${HADOOP_CONF_DIR}"/slaves"
+#SCP ${CURRENTHOST} ${SLAVES_FILE} ${HADOOP_CONF_DIR}"/slaves"
+
+#write the data (including header) to the file when done
+for node in ${NODELIST[*]}; do
+	echo ${node}
+	# echo $node > ${DBFILE}
+done
+
+# --------------------------
+# test the net_config_wired script sourcing
+TARGETHOSTNAME=node-02
+NODENAME=${CURRENTHOST}
+echo   ${TARGETHOSTNAME}/${NODENAME} ${IFACE} $NODEIP $GW $NETMASK $BROADCAST
+echo
+source ${NODECONTROLLER_INSTALL}/lib/net_config_wired.bash
 
 
+cat $LOGFILE_NAME
