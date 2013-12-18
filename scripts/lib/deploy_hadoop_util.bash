@@ -125,5 +125,7 @@ function hdfs_format {
 }
 
 
+#TODO functions for handling hostdata records in a single place
+
 
 echo "deploy_hadoop_util.bash loaded"
