@@ -16,17 +16,28 @@
 # NETWORK
 # BROADCAST
 # TARGETHOST - host we are sshing into
-# TARGETPORT - sshPORT
+# TARGETHOST can be different than the NODENAME or NODEIP because we could be changing that
 
-# I want to make this more readable!!!
-log_entry configuring  wired network on ${TARGETHOST}
-ssh -t -p ${TARGETPORT} ${TARGETHOST} -C "sudo hostname ${NODENAME}; sudo sed -i \"s/${TARGETHOST}/${NODENAME}/g\" /etc/hosts; sudo sed -i \"s/${TARGETHOST}/${NODENAME}/g\" /etc/hostname; echo allow-hotplug eth1 | sudo tee -a /etc/network/interfaces; echo auto ${IFACE} | sudo tee -a /etc/network/interfaces; echo iface ${IFACE} inet static | sudo tee -a /etc/network/interfaces; echo address ${NODEIP} | sudo tee -a /etc/network/interfaces; echo gateway ${GW} | sudo tee -a /etc/network/interfaces; echo netmask ${NETMASK} | sudo tee -a /etc/network/interfaces; echo network ${NETWORK} | sudo tee -a /etc/network/interfaces; echo broadcast ${BROADCAST} | sudo tee -a /etc/network/interfaces"
+# the network needs to be bounced if we change this however, we probably want to
+# finish all of our installation and configuration changes before we bounce it
+
+# TODO redesign this so it pulls in the existing file and edits it instead of
+# simply appending things to the end of the file - if this were run more than once
+# I think it owuld break stuff, while it should really result in an unchanged file
+# unles the data changed somehow (different gateway or something)
+
+
+log_entry configuring  wired network on ${TARGETHOSTNAME}
 
 # Try this
 SSH_COMMAND=""
+# change the hostname to NODENAME
 SSH_COMMAND="sudo hostname ${NODENAME};"
-SSH_COMMAND=${SSH_COMMAND}" sudo sed -i \"s/${TARGETHOST}/${NODENAME}/g\" /etc/hosts;"
-SSH_COMMAND=${SSH_COMMAND}" sudo sed -i \"s/${TARGETHOST}/${NODENAME}/g\" /etc/hostname;"
+# Change the hostname to NODENAME  in /etc/hosts and /etc/hostname
+SSH_COMMAND=${SSH_COMMAND}" sudo sed -i \"s/${TARGETHOSTNAME}/${NODENAME}/g\" /etc/hosts;"
+SSH_COMMAND=${SSH_COMMAND}" sudo sed -i \"s/${TARGETHOSTNAME}/${NODENAME}/g\" /etc/hostname;"
+
+# reconfigure the network interfaces file from DHCP to wired static IP Address
 SSH_COMMAND=${SSH_COMMAND}" echo allow-hotplug eth1 | sudo tee -a /etc/network/interfaces;"
 SSH_COMMAND=${SSH_COMMAND}" echo auto ${IFACE} | sudo tee -a /etc/network/interfaces; "
 SSH_COMMAND=${SSH_COMMAND}" echo iface ${IFACE} inet static | sudo tee -a /etc/network/interfaces; "
@@ -34,12 +45,7 @@ SSH_COMMAND=${SSH_COMMAND}" echo address ${NODEIP} | sudo tee -a /etc/network/in
 SSH_COMMAND=${SSH_COMMAND}" echo gateway ${GW} | sudo tee -a /etc/network/interfaces;"
 SSH_COMMAND=${SSH_COMMAND}" echo netmask ${NETMASK} | sudo tee -a /etc/network/interfaces;"
 SSH_COMMAND=${SSH_COMMAND}" echo network ${NETWORK} | sudo tee -a /etc/network/interfaces;"
-SSH_COMMAND=${SSH_COMMAND}" echo broadcast ${BROADCAST} | sudo tee -a /etc/network/interface"
-# ssh -t -p ${TARGETPORT} ${TARGETHOST} -C \"${SSH_COMMAND}\"
+SSH_COMMAND=${SSH_COMMAND}" echo broadcast ${BROADCAST} | sudo tee -a /etc/network/interfaces"
 
+SSH ${TARGETHOSTNAME} ${SSH_COMMAND}
 
-
-
-
-
-# SSH_COMMAND=${SSH_COMMAND}"sed -i \"s/<value>*<\/value>/<value>${HADOOP_DFS_REPLICAS}<\/value>/g\" ${HADOOP_CONF_DIR}/${HADOOP_HDFS_SITE_FILE};"
