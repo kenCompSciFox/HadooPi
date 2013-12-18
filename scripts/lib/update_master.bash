@@ -1,7 +1,7 @@
 #!/bin/bash
 # scripts/lib/update_masters.bash
 # Update Master node information
-# this module goes out to each of the masters updates thier files
+# this module goes out to each of the masters updates thier files.
 # it is run at the end of processing of the nodecontroller script
 # when changes to the system have been made.
 # This script could be run from a wrapper other than nodecontroller.bash
@@ -40,7 +40,6 @@ done
 log_entry masters and slaves files created successfully
 
 
-
 # Set a flag before updating, write it to a file
 # the consistency lockfile will be unset at the end of this code.
 # the purpose is to indicate that all of update_master.bash file
@@ -66,13 +65,13 @@ for masternode in ${NODELIST} do
 	SSH_COMMAND=""
 	SSH_COMMAND=${SSH_COMMAND}"sed -i \"s/<value>*<\/value>/<value>${HADOOP_DFS_REPLICAS}<\/value>/g\" ${HADOOP_CONF_DIR}/${HADOOP_HDFS_SITE_FILE};"
 
-	ssh -t -p ${SSHPORT} ${nodeIP} -C ${SSH_COMMAND}
+	SSH ${nodeIP} ${SSH_COMMAND}
 
 	# push the slaves file to this master server
-	scp -P ${SSHPORT} ${SLAVES_FILE} ${nodeIP}":"${HADOOP_CONF_DIR}"/slaves"
+	SCP ${SLAVES_FILE} ${nodeIP}":"${HADOOP_CONF_DIR}"/slaves"
 
 	# push the masters file to this master server
-	scp -P ${SSHPORT} ${nodeIP} ${MASTERS_FILE} ${HADOOP_CONF_DIR}"/masters"
+	SCP ${nodeIP} ${MASTERS_FILE} ${HADOOP_CONF_DIR}"/masters"
 
 done
 
