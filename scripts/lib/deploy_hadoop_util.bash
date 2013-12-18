@@ -33,7 +33,7 @@ function SCP {
 function SSH {
 	HOST=$1
 	CMD=$2
-	log_entry executing command ${CMD} on ${HOST}
+	log_entry Executing command ${CMD} on ${HOST}
 	ssh -t -p ${SSHPORT} ${HOST} -C ${CMD}
 	retval=$?
 	return ${retval}
@@ -69,7 +69,7 @@ function set_ipv4_gateway {
 	then
 		log_entry ERROR gateway address specification error \("${retval}"\) args: "${@}"
 	else
-		log_entry Channging gateway from ${GW} to ${TMP}
+		log_entry Changing gateway from ${GW} to ${TMP}
 		GW=${TMP}
 	fi
 }
@@ -81,7 +81,7 @@ function set_ipv4_netmask {
 	then
 		log_entry ERROR netmask specification error \("${retval}"\) args: "${@}"
 	else
-		log_entry Channging netmask from ${NETMASK} to ${TMP}
+		log_entry Changing netmask from ${NETMASK} to ${TMP}
 		NETMASK=${TMP}
 	fi
 }
@@ -93,7 +93,7 @@ function set_ipv4_broadcast {
 	then
 		log_entry ERROR broadcast address specification error \("${retval}"\) args: "${@}"
 	else
-		log_entry Channging broadcast from ${BROADCAST} to ${TMP}
+		log_entry Changing broadcast from ${BROADCAST} to ${TMP}
 		BROADCAST=${BROADCAST}
 	fi
 }
@@ -105,7 +105,7 @@ function set_ipv4_nodeip {
 	then
 		log_entry ERROR NODE IP address specification error \("${retval}"\) args: "${@}"
 	else
-		log_entry Channging NODE IP from ${NODEIP} to ${TMP}
+		log_entry Changing NODE IP from ${NODEIP} to ${TMP}
 		NODEIP=${TMP}
 	fi
 }
