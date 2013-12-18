@@ -29,12 +29,14 @@ function SCP {
 # Needs error checking
 # facade for Secure Shell
 #adds logging, simplifies innvocation, supplies consistency
-
+# fixed bug: CMD needs equal $@ not $2 because of shell expansion
+# -- that took a while to find!
 function SSH {
 	HOST=$1
-	CMD=$2
-	log_entry Executing command ${CMD} on ${HOST}
-	ssh -t -p ${SSHPORT} ${HOST} -C ${CMD}
+	shift
+	CMD=$@
+	log_entry Executing command \"${CMD}\" on ${HOST}
+	ssh -t -p ${SSHPORT} ${HOST} -C \"${CMD}\"
 	retval=$?
 	return ${retval}
 }
@@ -118,12 +120,20 @@ function set_ipv4_nodeip {
 function hdfs_format {
 	SSH_COMMAND="sudo ${HADOOP_SBIN_DIR}/hadoop-setup-hdfs.sh --format --hdfs-user=${HADOOP_USER} --mapreduce-user=${HADOOP_USER}"
 
-	ssh -t -p ${SSHPORT} ${HADOOP_MASTER_NODE} -C ${SSH_COMMAND}
+	SSH ${HADOOP_MASTER_NODE} ${SSH_COMMAND}
 
 	SSH_COMMAND=""
 
 }
 
+
+
+function hold {
+# Generate the NODE ID, NAME  and IPADDRESS
+NODENAME=node-0${NODENUM}
+NODEADDR={${HOSTNODE} plus ${NODENUM}}
+IP=${NETOCTET1}.${NETOCTET2}.${SUBNET}.${NODEADDR}
+}
 
 #TODO functions for handling hostdata records in a single place
 
