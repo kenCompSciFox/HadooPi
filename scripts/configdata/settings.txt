@@ -1,0 +1,212 @@
+#!/bin/bash
+# Settings.txt
+# Ken Fox - 2013
+# This file is sourced in by the scripts so that all of the variables
+# get set and are consistent across a given cluster. We can manage
+# mutiple clusters from a single node controller/Installer by having
+# multiple configdata directories.
+# A future development will enable us to specifiy a config directory to use
+# as an option on the commandline
+#
+# The number of node in the system - saved between invocations
+# the data replication always need to be less than or equal to the number of
+# nodes. On start up the system will count the number of nodes in the
+# Hostdata file. when we add a node, the hostdata.txt file gets updated, as
+# does this variable
+
+NUMNODES=0
+NODE_TYPE_CURRENT="RPI"
+
+
+# ================================================
+# RaspberryPi specific hardware and software configuration information
+#
+# We'll probably break host type specific information out into
+# distinct settings files at some point for the sake of organization
+#
+# This assumes Raspbian Wheezy install via NOOBS
+#
+# All Model B RPis have a single 10/100 hardwired Ethernet port
+# that will boot up as eth0. If an additional interface is added
+# to the default config, we may want to install on a different
+# interface.
+RPI_DEFAULT_IFACE=eth0
+
+
+# ================================================
+# Networking
+# Networking information - break  up the IPV4 address into 4 octets
+# the first three are the network and subnet
+# assume we're usingthe CIDR address range 192.168
+NETOCTET1=192
+NETOCTET2=168
+SUBNET=3
+
+# Default gateway information - may need to override this at some
+# point so it's broken out here now. While everyone typically sets
+# thier default gateway to nnn.nnn.nnn.1 that is not always the case
+# it's also possible that the Gateway Subnet is different than the
+# hosts subnet so allow for the difference
+GWSUBNET=${SUBNET}
+GWNODE=1
+GW=${NETOCTET1}.${NETOCTET2}.${GWSUBNET}.${GWNODE}
+
+# The host node numbers are starting at 60 but we start one below that
+# to increment the IP address by the node number {of course we could make them
+# equal}
+# we'll have to handle wrapping the addresses to the next network once we get
+# above 254 since 255 is a netmask
+# probably not the cleanest way to do this...
+HOST_NODE_START=59
+
+# Set a Netmask - we may need to override this if the cluster becomes
+# larger than 253 Nodes
+NETMASK=255.255.255.0
+
+# Network & broadcast addresses
+# Someone should double check this- should these be the local subnet
+# or the gateway subnet - most of the time they are the same but what
+# happens when they are different?
+
+NETWORK=${NETOCTET1}.${NETOCTET2}.${GWSUBNET}.0
+BROADCAST=${NETOCTET1}.${NETOCTET2}.${GWSUBNET}.255
+
+# ================================================
+# Secure Shell - ssh
+SSHPORT=22
+PUBKEYS_FILENAME=public_keys
+
+
+# ================================================
+# RPI Java Version information
+# RPis have different java versions and java home locations
+#
+# openjdk-7-jdk is the latest version for rpi A/O 20131217
+JAVA_VERSION_RPI=openjdk-7-jdk
+JAVA_HOME_RPI=/usr/lib/jvm/${JAVA_VERSION_RPI}-armhf
+
+JAVA_VERSION_QCOW=""
+JAVA_HOME_QCOW=/usr/lib/jvm/${JAVA_VERSION_QCOW}-armhf
+
+JAVA_VERSION_ENGRIdle=""
+JAVA_HOME_ENGRIdl=/usr/lib/jvm/${JAVA_VERSION_ENGRIdle}-armhf
+
+# this should be updated in the hadoop-env.sh file
+# @TROUBLESHOOTING - verify JAVA_HOME is still correct
+JAVA_HOME=${JAVA_HOME_RPI}
+
+
+# ================================================
+# Hadoop information
+
+HADOOP_USER=hduser
+HADOOP_GROUP=hadoop
+# variable holding the nodename of the master node
+# should be sucked in on startup or set from a command line option
+HADOOP_MASTER_NODE=""
+
+HADOOP_VERSION=hadoop-1.2.1
+
+# locationy things
+# I was installing in /usr/local/hadoop
+# bill was installin in /opt/hadoop/<hadoop version>
+#
+INSTALL_DIR=/opt/hadoop
+FS_DIR="/fs"
+HADOOP_DIR=${HADOOP_VERSION}
+HADOOP_INSTALL=${INSTALL_DIR}/${HADOOP_VERSION}
+HADOOP_TMP_DIR=${FS_DIR}/hadoop/tmp
+HADOOP_CONF_DIR=${HADOOP_INSTALL}/conf
+HADOOP_BIN_DIR=${HADOOP_INSTALL}/bin
+HADOOP_SBIN_DIR=${HADOOP_INSTALL}/sbin
+
+
+HADOOP_HDFS_SITE_FILE=hdfs-site.xml
+HADOOP_CORE_SITE_FILE=core-site.xml
+HADOOP_MAPRED_SITE_FILE=mapred-site.xml
+
+HADOOP_DOWNLOAD=apache.mirrors.pair.com/hadoop/core/${HADOOP_VERSION}/${HADOOP_TAR}
+HADOOP_TAR=${HADOOP_VERSION}.tar.gz
+
+
+# web port numbers: they are here for completeness, and we might have some
+# reason to chjange them later.
+HADOOP_HDFS_WEB_PORT=54310
+HADOOP_DFS_WEB_PORT=50070
+HADOOP_MAPREDUCE_WEB_PORT=50030
+HADOOP_TASK_TRACKER_WEB_PORT=50060
+HADOOP_JOB_TRACKER_PORT=54311
+
+
+# tuning and tweaking variables a.k.a. knobs
+
+# Number of DFS replicas
+# If we have a large number of nodes, with sufficient diskspace on them,
+# we might want a larger replica value (should be an odd prime I recall
+# hearing somehwere) - this value will be propagated throughout the kingdom...
+# The update routines configure the nodes to have lesser of this value or the
+# number of nodes in the cluster
+
+HADOOP_DFS_REPLICAS_DEFAULT=3
+HADOOP_DFS_REPLICAS=${HADOOP_DFS_REPLICAS_DEFAULT}
+
+# Heap size in Megabytes - needs to be smaller for RPis
+# this should be updated in the hadoop-env.sh file
+HADOOP_HEAPSIZE_DEFAULT=1024
+HADOOP_HEAPSIZE_RPI=272
+HADOOP_HEAPSIZE=${HADOOP_HEAPSIZE_RPI}
+
+
+
+
+#=====================================================
+# Variables used throughout
+
+# Logfile path choose a location you can write to -
+#/var/log/hadoop/nodecontroller might be a good idea.
+# default set here assumes you are running scripts from the
+# scripts directory
+# NODECONTROLLER_INSTALL is defined in the main program
+# or optionally can be a user environment variable
+LOGFILEPATH=""
+LOGPATH=${NODECONTROLLER_INSTALL}"/log"
+
+# BASIS of default log file name
+LOGFILE_BASENAME="hadoop-deploy"
+
+# name of the file that will receive logging output
+LOGFILE_NAME=""
+
+# Default date format for log entries
+LOGFILE_DATE_FORMAT="%F %H:%M:%S"
+
+# Current date and time at start of execution
+LOGDATE=`date +"%F-%T"`
+
+
+# Base is what we are calling our nodes when we create new
+# ones on "bare" or "psuedo-bare" metal.
+# The nodes will consist of the NODENAME_BASE, a hyphen, and a number
+# e.g.: node-01
+# In other cases we'll want to retain the existing node name and update
+# our cluster configuration table with it.
+NODENAME_BASE=node
+
+# Nodename will contain the string of the node we are currently
+# processing. It's blank here to initialize and document it, but
+# gets set elsewhere
+NODENAME=""
+NODEIP="192.168.3.60"
+
+# For now we'll initialize the IFACE variable to be the RPI_DEFAULT_IFACE
+# which is eth0 - this should be overridden for other typse of host installs
+IFACE=${RPI_DEFAULT_IFACE}
+
+# ====================
+# Database
+CONFIGDIR=${NODECONTROLLER_INSTALL}"/configdata"
+CONFIGFILE=hostdata.txt
+DBFILE=${CONFIGDIR}"/"${CONFIGFILE}
+SLAVES_FILE=${CONFIGDIR}"/slaves"
+MASTERS_FILE=${CONFIGDIR}"/masters"
+
