@@ -71,9 +71,13 @@ set_ipv4_nodeip 9 10 11 12
 echo node IP  after $NODEIP
 
 
-
+HOST="node-02"
 SSH_COMMAND=""
 SSH_COMMAND="pushd /usr/local/hadoop/conf ; ls >> ~/confdirlist2.txt;"
 # ssh -t -p ${SSHPORT} hduser@192.168.3.61 -C ${SSH_COMMAND}
 
 SSH  hduser@192.168.3.61 ${SSH_COMMAND}
+
+SCP ${HOST} ${SLAVES_FILE} ${HADOOP_CONF_DIR}"/slaves"
+
+
