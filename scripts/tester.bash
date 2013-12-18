@@ -7,7 +7,7 @@
 
 # A couple basic settings
 # path where this system is installed
-NODECONTROLLER_INSTALL="/home/kwf26/CS498/scripts"
+NODECONTROLLER_INSTALL="/home/kwf26/CS498/HadooPi/scripts"
 
 
 # First. Source in the Settings file from the lib directory to pick up all the
