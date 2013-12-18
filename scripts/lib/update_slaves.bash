@@ -26,27 +26,29 @@ for slavenode in ${NODELIST} do
 	# or the HADOOP_HDFS_REPLICAS variable
 	SSH_COMMAND=""
 	SSH_COMMAND=${SSH_COMMAND}"sed -i \"s/<value>*<\/value>/<value>${HADOOP_DFS_REPLICAS}<\/value>/g\" ${HADOOP_CONF_DIR}/${HADOOP_HDFS_SITE_FILE};"
+
+	# set the MASTER_NODE -- how will we know what this is ahead of time
 	SSH_COMMAND=${SSH_COMMAND}"sed -i \"s/<value>*<\/value>/<value>${HADOOP_MASTER_NODE}<\/value>/g\" ${HADOOP_CONF_DIR}/${HADOOP_MAPRED_SITE_FILE};"
 
-	ssh -t -p ${SSHPORT} ${nodeIP} -C ${SSH_COMMAND}
+	SSH ${nodeIP}  ${SSH_COMMAND}
 
 	# push the slaves file to this master server
-	scp -P ${SSHPORT} ${nodeIP} ${SLAVES_FILE} ${HADOOP_CONF_DIR}"/slaves"
+	SCP ${nodeIP} ${SLAVES_FILE} ${HADOOP_CONF_DIR}"/slaves"
 
 	# push the masters file to this master server
-	scp -P ${SSHPORT} ${nodeIP} ${MASTERS_FILE} ${HADOOP_CONF_DIR}"/masters"
+	SCP ${nodeIP} ${MASTERS_FILE} ${HADOOP_CONF_DIR}"/masters"
 
-	# pus the authorized_keys file to the slave
-	scp -P ${SSHPORT} keys ${nodeIP}:/home/hduser/.ssh/authorized_keys2
+	# push the authorized_keys file to the slave
+	SCP ${CONFIGDIR}"/"${PUBKEYS_FILENAME} ${nodeIP}:/home/${HADOOP_USER}/.ssh/authorized_keys2
 
 	# update the /etc/hosts/file on the slaves
-	scp -P ${SSHPORT} hosts ${nodeIP}:/tmp/hosts
-	ssh -t -p ${SSHPORT} ${nodeIP} -C "cat /tmp/hosts | sudo tee -a /etc/hosts"
+	# TODO make this better - want a way to process the hosts file
+	# such that we don't have duplicate entries
+	# |sort|uniq >
+	SCP hosts ${nodeIP}:/tmp/hosts
+	SSH ${nodeIP} -C "cat /tmp/hosts | sudo tee -a /etc/hosts"
 
 done
 
 CONSISTENCY_FLAG=1
-
-
-# if we added a node to the cluster, we need to reformat the HDFS
 
