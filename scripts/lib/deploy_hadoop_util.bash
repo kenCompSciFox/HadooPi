@@ -16,7 +16,6 @@
 # destination host
 # actually, just specify a user@host combination for HOST
 # adds logging, simplifies innvocation, supplies consistency
-# TODO TEST THIS
 function SCP {
 	HOST=$1
 	SOURCE=$2
@@ -30,7 +29,6 @@ function SCP {
 # Needs error checking
 # facade for Secure Shell
 #adds logging, simplifies innvocation, supplies consistency
-# TODO TEST THIS
 
 function SSH {
 	HOST=$1

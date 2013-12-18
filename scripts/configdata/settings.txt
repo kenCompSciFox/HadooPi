@@ -111,10 +111,14 @@ HADOOP_VERSION=hadoop-1.2.1
 # I was installing in /usr/local/hadoop
 # bill was installin in /opt/hadoop/<hadoop version>
 #
-INSTALL_DIR=/opt/hadoop
+INSTALL_DIR=/opt/hadoop       
+INSTALL_DIR=/usr/local
+
 FS_DIR="/fs"
 HADOOP_DIR=${HADOOP_VERSION}
-HADOOP_INSTALL=${INSTALL_DIR}/${HADOOP_VERSION}
+HADOOP_INSTALL=${INSTALL_DIR}"/"${HADOOP_VERSION}
+HADOOP_INSTALL=${INSTALL_DIR}"/hadoop"
+
 HADOOP_TMP_DIR=${FS_DIR}/hadoop/tmp
 HADOOP_CONF_DIR=${HADOOP_INSTALL}/conf
 HADOOP_BIN_DIR=${HADOOP_INSTALL}/bin
