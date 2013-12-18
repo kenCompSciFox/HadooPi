@@ -1,9 +1,5 @@
 # New Slave Node
 # this module creates a new slave node
-# Generate the NODE ID, NAME  and IPADDRESS
-NODENAME=node-0${NODENUM}
-NODEADDR={${HOSTNODE} plus ${NODENUM}}
-IP=${NETOCTET1}.${NETOCTET2}.${SUBNET}.${NODEADDR}
 
 
 # =========================================
