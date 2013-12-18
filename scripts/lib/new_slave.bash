@@ -36,40 +36,37 @@ fi
 # The remaining functions are common to most other host types.
 
 # Add the hduser and genrate the ssh keys
+SSH_COMMAND=""
+# create a hadoop group
+SSH_COMMAND=${SSH_COMMAND}" sudo addgroup ${HADOOP_GROUP};"
 
-ssh -t -p ${TARGETPORT} ${TARGETHOST} -C
-"sudo addgroup ${HADOOP_GROUP};
-sudo adduser --disabled-password --ingroup ${HADOOP_GROUP} --gecos '' ${HADOOP_USER};
-echo ${HADOOP_USER}:${HADOOP_GROUP} | sudo chpasswd;
-sudo usermod -a -G sudo ${HADOOP_USER};
-su ${HADOOP_USER} -c 'mkdir /home/${HADOOP_USER}/.ssh';
-su ${HADOOP_USER} -c 'ssh-keygen -t rsa -P \"\" -f /home/${HADOOP_USER}/.ssh/id_rsa'; "
+# create the hduser and screw up its password
+SSH_COMMAND=${SSH_COMMAND}" sudo adduser --disabled-password --ingroup ${HADOOP_GROUP} --gecos '' ${HADOOP_USER};"
+SSH_COMMAND=${SSH_COMMAND}" echo ${HADOOP_USER}:${HADOOP_GROUP} | sudo chpasswd;"
+
+# give the hadoop user the ability to sudo
+SSH_COMMAND=${SSH_COMMAND}" sudo usermod -a -G sudo ${HADOOP_USER};"
+
+# create thw .ssh directory fir the HADOOP_USER and generate the ssh keys
+SSH_COMMAND=${SSH_COMMAND}" su ${HADOOP_USER} -c 'mkdir /home/${HADOOP_USER}/.ssh';"
+
+# the \"\" provides a null previous passphrase to keygen.
+SSH_COMMAND=${SSH_COMMAND}" su ${HADOOP_USER} -c 'ssh-keygen -t rsa -P \"\" -f /home/${HADOOP_USER}/.ssh/id_rsa'; "
+
+SSH ${TARGETHOST} ${SSH_COMMAND}
 
 # get a copy of the public key for the host and store it locally
-ssh -t -p ${TARGETPORT} ${TARGETHOST} -C 'cat /home/hduser/.ssh/id_rsa.pub' >> ${CONFIGDIR}"/"${PUBKEYS_FILENAME}
+SSH ${TARGETHOST} 'cat /home/hduser/.ssh/id_rsa.pub' >> ${CONFIGDIR}"/"${PUBKEYS_FILENAME}
 
 # Install and configure java and hadoop on target Node
 source ${NODECONTROLLER_INSTALL}/lib/software_install.bash
 
-
-# update the hadoop-env.sh file
-#JAVA_HOME=/usr/lib/jvm/java-7-openjdk-armhf
-#HADOOP_HEAPSIZE=272
-
-
-
-#update the hduser .bashrc file
-#export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-armhf
-#export HADOOP_INSTALL=/usr/local/hadoop
-#export PATH=$PATH:$HADOOP_INSTALL/bin
-
-
 # update the core-site.xml file
-scp -P ${SSHPORT} ${TARGETHOST} ${CONFIGDIR}"/"${HADOOP_CORE_SITE_FILE} ${HADOOP_CONF_DIR}"/"${HADOOP_CORE_SITE_FILE}
+SCP ${TARGETHOST} ${CONFIGDIR}"/"${HADOOP_CORE_SITE_FILE} ${HADOOP_CONF_DIR}"/"${HADOOP_CORE_SITE_FILE}
 
 # update the hdfs-site.xml file
-scp -P ${SSHPORT} ${TARGETHOST} ${CONFIGDIR}"/"${HADOOP_HDFS_SITE_FILE} ${HADOOP_CONF_DIR}"/"${HADOOP_HDFS_SITE_FILE}
+SCP ${TARGETHOST} ${CONFIGDIR}"/"${HADOOP_HDFS_SITE_FILE} ${HADOOP_CONF_DIR}"/"${HADOOP_HDFS_SITE_FILE}
 
 # update the mapred_site.xml
-scp -P ${SSHPORT} ${TARGETHOST} ${CONFIGDIR}"/"${HADOOP_MAPRED_SITE_FILE} ${HADOOP_CONF_DIR}"/"${HADOOP_MAPRED_SITE_FILE}
+SCP ${TARGETHOST} ${CONFIGDIR}"/"${HADOOP_MAPRED_SITE_FILE} ${HADOOP_CONF_DIR}"/"${HADOOP_MAPRED_SITE_FILE}
 
