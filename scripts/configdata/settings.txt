@@ -85,11 +85,11 @@ PUBKEYS_FILENAME=public_keys
 JAVA_VERSION_RPI=openjdk-7-jdk
 JAVA_HOME_RPI=/usr/lib/jvm/${JAVA_VERSION_RPI}-armhf
 
-JAVA_VERSION_QCOW=""
-JAVA_HOME_QCOW=/usr/lib/jvm/${JAVA_VERSION_QCOW}-armhf
+JAVA_VERSION_QCOW="java-8-oracle"
+JAVA_HOME_QCOW=/usr/lib/jvm/${JAVA_VERSION_QCOW}
 
-JAVA_VERSION_ENGRIdle=""
-JAVA_HOME_ENGRIdl=/usr/lib/jvm/${JAVA_VERSION_ENGRIdle}-armhf
+JAVA_VERSION_ENGRIdle="java-8-oracle"
+JAVA_HOME_ENGRIdl=/usr/lib/jvm/${JAVA_VERSION_ENGRIdle}
 
 # this should be updated in the hadoop-env.sh file
 # @TROUBLESHOOTING - verify JAVA_HOME is still correct
@@ -109,15 +109,18 @@ HADOOP_VERSION=hadoop-1.2.1
 
 # locationy things
 # I was installing in /usr/local/hadoop
-# bill was installin in /opt/hadoop/<hadoop version>
+# but
+# bill was installing in /opt/hadoop/<hadoop version>
 #
 INSTALL_DIR=/opt/hadoop       
-INSTALL_DIR=/usr/local
+INSTALL_DIR=/usr/local   ; #delete this line after testing with existing node
 
 FS_DIR="/fs"
 HADOOP_DIR=${HADOOP_VERSION}
 HADOOP_INSTALL=${INSTALL_DIR}"/"${HADOOP_VERSION}
-HADOOP_INSTALL=${INSTALL_DIR}"/hadoop"
+HADOOP_INSTALL=${INSTALL_DIR}"/hadoop" ; #delete this line after testing
+# with existing node
+
 
 HADOOP_TMP_DIR=${FS_DIR}/hadoop/tmp
 HADOOP_CONF_DIR=${HADOOP_INSTALL}/conf
@@ -158,10 +161,14 @@ HADOOP_DFS_REPLICAS=${HADOOP_DFS_REPLICAS_DEFAULT}
 # this should be updated in the hadoop-env.sh file
 HADOOP_HEAPSIZE_DEFAULT=1024
 HADOOP_HEAPSIZE_RPI=272
-HADOOP_HEAPSIZE=${HADOOP_HEAPSIZE_RPI}
+HADOOP_HEAPSIZE_QCOW=${HADOOP_HEAPSIZE_DEFAULT}
+HADOOP_HEAPSIZE_ENGRIdle=${HADOOP_HEAPSIZE_DEFAULT}
+
+HADOOP_HEAPSIZE=${HADOOP_HEAPSIZE_DEFAULT}
 
 
-
+${HADOOP_TASK_TRACKER_NODE}=${HADOOP_MASTER_NODE}
+${HADOOP_JOB_TRACKER_NODE}=${HADOOP_MASTER_NODE}
 
 #=====================================================
 # Variables used throughout
